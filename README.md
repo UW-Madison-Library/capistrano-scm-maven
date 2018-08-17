@@ -76,7 +76,7 @@ Require the gem in your `Capfile`:
 Configure the gem's variables
 
 ```ruby
-set :maven_endpoint, 'http://artifactory.agoodno.com:8081/artifactory'
+set :maven_endpoint, 'http://agoodno.com:8081/artifactory'
 set :maven_repository, 'libs-snapshot'
 set :maven_group_id, 'com.agoodno'
 set :maven_artifact_version, '0.0.1-SNAPSHOT'
@@ -84,6 +84,11 @@ set :maven_artifact_name, 'sample'
 set :maven_artifact_style, 'cap'
 set :maven_artifact_ext, 'tar.gz'
 ```
+
+The configuration above would result in an attempt to retrieve the
+artfact at:
+
+    `http://agoodno.com:8081/artifactory/libs-snapshot/com/agoodno/sample/0.0.1-SNAPSHOT/sample-0.0.1-SNAPSHOT-cap.tar.gz`
 
 ## Build Artifact ##
 

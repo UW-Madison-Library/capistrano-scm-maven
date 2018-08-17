@@ -77,7 +77,6 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   # Full path to artifact
-  # ex. http://artifactory.library.wisc.edu:8081/artifactory/libs-snapshot/edu/wisc/library/sdg/alma-invoice-to-wisdm-check-request/0.0.1-SNAPSHOT/alma-invoice-to-wisdm-check-request-0.0.1-SNAPSHOT-cap.tar.gz
   def artifact_url
     [
       fetch(:maven_endpoint),
