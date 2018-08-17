@@ -19,11 +19,6 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     fetch(:maven_artifact_version)
   end
 
-  def mkdirs
-    backend.execute :mkdir, "-p", repo_path
-    backend.execute :mkdir, "-p", release_path
-  end
-
   def check_repo_is_reachable
     return reachable?(repo_url)
   end
@@ -32,9 +27,9 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     return reachable?(artifact_url)
   end
 
-  def archive_needs_refresh?
-    snapshot = fetch(:maven_artifact_version).include? 'SNAPSHOT'
-    snapshot || backend.test(" [ ! -f #{local_filename} ] ")
+  def mkdirs
+    backend.execute :mkdir, "-p", repo_path
+    backend.execute :mkdir, "-p", release_path
   end
 
   def download
@@ -50,15 +45,43 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
 
   private
 
-  def repo_url
-    "#{fetch(:maven_endpoint)}/#{fetch(:maven_repository)}/"
+  def archive_needs_refresh?
+    snapshot_artifact? || artifact_missing?
   end
 
+  def snapshot_artifact?
+    fetch(:maven_artifact_version).include? 'SNAPSHOT'
+  end
+
+  def artifact_missing?
+    backend.test(" [ ! -f #{local_filename} ] ")
+  end
+
+  # The trailing slash on the URL avoids a 302 Not Found response from
+  # Artifactory. The #reachable? methods supports this type of
+  # redirect but adding the trailing slash saves a step.
+  def repo_url
+    if snapshot_artifact?
+      "#{fetch(:maven_endpoint)}/#{maven_repository}/"
+    else
+      "#{fetch(:maven_endpoint)}/#{maven_repository}/"
+    end
+  end
+
+  def maven_repository
+    if snapshot_artifact?
+      fetch(:maven_snapshot_repository)
+    else
+      fetch(:maven_release_repository)
+    end
+  end
+
+  # Full path to artifact
   # ex. http://artifactory.library.wisc.edu:8081/artifactory/libs-snapshot/edu/wisc/library/sdg/alma-invoice-to-wisdm-check-request/0.0.1-SNAPSHOT/alma-invoice-to-wisdm-check-request-0.0.1-SNAPSHOT-cap.tar.gz
   def artifact_url
     [
       fetch(:maven_endpoint),
-      fetch(:maven_repository),
+      maven_repository,
       *fetch(:maven_group_id).split('.'),
       fetch(:maven_artifact_name),
       fetch(:maven_artifact_version),
