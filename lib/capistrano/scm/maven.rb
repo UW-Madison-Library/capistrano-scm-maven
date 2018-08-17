@@ -90,7 +90,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def remote_filename
-    "#{fetch(:maven_artifact_name)}-#{fetch(:maven_artifact_version)}-#{fetch(:maven_artifact_style, 'bin')}.#{fetch(:maven_artifact_ext)}"
+    "#{fetch(:maven_artifact_name)}-#{fetch(:maven_artifact_version)}-#{fetch(:maven_artifact_style, 'cap')}.#{fetch(:maven_artifact_ext)}"
   end
 
   def local_filename
