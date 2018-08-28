@@ -46,7 +46,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   private
 
   def archive_needs_refresh?
-    snapshot_artifact? || artifact_missing?
+    true
   end
 
   def snapshot_artifact?
