@@ -1,6 +1,8 @@
 require "capistrano/scm/plugin"
 require "uri"
 require 'net/http'
+require 'nokogiri'
+require 'open-uri'
 
 class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   def set_defaults; end
@@ -20,11 +22,15 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def check_repo_is_reachable
-    return reachable?(repo_url)
+    reachable?(repo_url)
   end
 
   def check_artifact_is_available
-    return reachable?(artifact_url)
+    if snapshot_artifact?
+      reachable?(snapshot_metadata_url)
+    else
+      reachable?(artifact_url)
+    end
   end
 
   def mkdirs
@@ -33,9 +39,10 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def download
-    backend.info "Downloading artifact from #{artifact_url}"
+    url = artifact_url(artifact_id)
+    backend.info "Downloading artifact from #{url}"
     if archive_needs_refresh?
-      backend.execute :curl, '--fail', '--silent', '-o', local_filename, artifact_url
+      backend.execute :curl, '--fail', '--silent', '-o', local_filename, url
     end
   end
 
@@ -61,11 +68,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   # Artifactory. The #reachable? methods supports this type of
   # redirect but adding the trailing slash saves a step.
   def repo_url
-    if snapshot_artifact?
-      "#{fetch(:maven_endpoint)}/#{maven_repository}/"
-    else
-      "#{fetch(:maven_endpoint)}/#{maven_repository}/"
-    end
+    "#{fetch(:maven_endpoint)}/#{maven_repository}/"
   end
 
   def maven_repository
@@ -77,23 +80,33 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   # Full path to artifact
-  def artifact_url
+  def artifact_url(id = nil)
+    "#{artifact_directory_url}/#{remote_filename(id)}"
+  end
+
+  # Full path to snapshot's maven-metadata.xml
+  def snapshot_metadata_url
+    "#{artifact_directory_url}/maven-metadata.xml"
+  end
+
+  # Path to version directory that contains the artifact
+  def artifact_directory_url
     [
       fetch(:maven_endpoint),
       maven_repository,
       *fetch(:maven_group_id).split('.'),
       fetch(:maven_artifact_name),
-      fetch(:maven_artifact_version),
-      remote_filename
+      fetch(:maven_artifact_version)
     ].join('/')
   end
 
-  def remote_filename
-    "#{fetch(:maven_artifact_name)}-#{fetch(:maven_artifact_version)}-#{fetch(:maven_artifact_style, 'cap')}.#{fetch(:maven_artifact_ext)}"
+  def remote_filename(id)
+    id = fetch(:maven_artifact_version) if id.nil?
+    "#{fetch(:maven_artifact_name)}-#{id}-#{fetch(:maven_artifact_style, 'cap')}.#{fetch(:maven_artifact_ext)}"
   end
 
   def local_filename
-    "#{repo_path.to_s}/#{fetch(:maven_artifact_version)}.#{fetch(:maven_artifact_ext)}"
+    "#{repo_path}/#{fetch(:maven_artifact_version)}.#{fetch(:maven_artifact_ext)}"
   end
 
   def reachable?(uri_str, limit = 3)
@@ -114,5 +127,14 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     else
       false
     end
+  end
+
+  # If the artifact is a timestamped snapshot the artifact identifier is returned.
+  # Otherwise, nil is returned.
+  def artifact_id
+    return unless snapshot_artifact?
+    meta = Nokogiri::XML(open(snapshot_metadata_url))
+    versions = meta.xpath('/metadata/versioning/snapshotVersions/snapshotVersion/value')
+    versions.first.content if versions
   end
 end

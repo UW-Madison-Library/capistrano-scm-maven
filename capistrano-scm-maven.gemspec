@@ -9,4 +9,5 @@ Gem::Specification.new do |s|
   s.files       = Dir['lib/**/*', 'Rakefile', 'README.md']
   s.homepage    = 'http://rubygems.org/gems/capistrano-scm-maven'
   s.license     = 'MIT'
+  s.add_runtime_dependency 'nokogiri', '~> 1.8', '>= 1.8.5'
 end
