@@ -72,6 +72,10 @@ or add it to your `Gemfile` when using Bundler:
 Require the gem in your `Capfile`:
 
     require 'capistrano_scm_maven'
+        
+or
+    require 'capistrano/scm/maven'
+    install_plugin Capistrano::SCM::Maven
 
 Configure the gem's variables
 
