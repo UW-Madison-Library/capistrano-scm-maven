@@ -4,6 +4,7 @@ require 'net/http'
 require 'nokogiri'
 require 'open-uri'
 
+
 class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   def set_defaults; end
 
@@ -56,6 +57,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
 
   def check_artifact_is_available
     if snapshot_artifact?
+      backend.info "Snapshot version found: #{artifact_id}"
       reachable?(snapshot_metadata_url)
     else
       reachable?(artifact_url)
@@ -68,14 +70,16 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def download
-    url = artifact_url(artifact_id)
-    backend.info "Downloading artifact from #{url}"
-    if archive_needs_refresh?
+
+      url = artifact_url(artifact_id)
+      backend.info "Remote file name #{remote_filename(artifact_id)}"
+      backend.info "Downloading artifact from #{url}"
+      if archive_needs_refresh?
         # TODO: redact the curl auth from appearing in logs -or-
         # TODO: use ruby http library to download instead of curl
         # # for example: backend.execute :rake, clone:download
         backend.execute :curl, curl_auth, '--fail', '--silent', '-o', local_filename, url
-    end
+      end
 
   end
 
