@@ -142,11 +142,11 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
 
   def remote_filename(id)
     id = fetch(:maven_artifact_version) if id.nil?
-    "#{fetch(:maven_artifact_name)}-#{id}-#{fetch(:maven_artifact_style, 'cap')}.#{fetch(:maven_artifact_ext)}"
+    "#{fetch(:maven_artifact_name)}-#{id}-#{fetch(:maven_artifact_classification)}.#{fetch(:maven_artifact_ext)}"
   end
 
   def local_filename
-    "#{repo_path}/#{fetch(:maven_artifact_version)}.#{fetch(:maven_artifact_ext)}"
+    "#{repo_path}/#{fetch(:maven_artifact_name)}-#{fetch(:maven_artifact_version)}-#{fetch(:maven_artifact_classification)}.#{fetch(:maven_artifact_ext)}"
   end
 
   def reachable?(uri_str, limit = 3)
