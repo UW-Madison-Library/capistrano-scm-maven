@@ -149,8 +149,12 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     raise ArgumentError, 'too many HTTP redirects' if limit == 0
 
     backend.info "Checking #{uri_str} for reachability.."
-    uri = URI(uri_str)
-    response = Net::HTTP.new(uri.host, uri.port).request_head(uri.path)
+    uri = URI.parse(uri_str)
+    http = Net::HTTP.new(uri.host, uri.port)
+
+    request = Net::HTTP::Get.new(uri.path)
+    request.basic_auth(maven_user, maven_password)
+    response = http.request(request)
 
     case response
     when Net::HTTPSuccess then
