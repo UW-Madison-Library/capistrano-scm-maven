@@ -7,6 +7,34 @@ require 'open-uri'
 class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   def set_defaults; end
 
+  def maven_user
+    @maven_user ||= begin
+      fetch(:maven_user) if fetch(:maven_user)
+    end
+  end
+
+  def maven_password
+    @maven_password ||= begin
+      fetch(:maven_password) if fetch(:maven_password)
+    end
+  end
+
+  def auth_opts
+    if maven_user && maven_password
+      { http_basic_authentication: [maven_user, maven_password] }
+    else
+      {}
+    end
+  end
+
+  def curl_auth
+    if maven_user && maven_password
+      "--user '#{maven_user}:#{maven_password}'"
+    else
+      ''
+    end
+  end
+
   def define_tasks
     eval_rakefile File.expand_path("../tasks/maven.rake", __FILE__)
     eval_rakefile File.expand_path("../tasks/clone.rake", __FILE__)
