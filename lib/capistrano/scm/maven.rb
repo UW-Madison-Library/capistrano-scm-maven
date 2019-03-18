@@ -173,7 +173,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   # Otherwise, nil is returned.
   def artifact_id
     return unless snapshot_artifact?
-    meta = Nokogiri::XML(open(snapshot_metadata_url))
+    meta = Nokogiri::XML(open(snapshot_metadata_url, :http_basic_authentication => [maven_user,maven_password]))
     versions = meta.xpath('/metadata/versioning/snapshotVersions/snapshotVersion/value')
     versions.first.content if versions
   end
