@@ -71,8 +71,12 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     url = artifact_url(artifact_id)
     backend.info "Downloading artifact from #{url}"
     if archive_needs_refresh?
-      backend.execute :curl, '--fail', '--silent', '-o', local_filename, url
+        # TODO: redact the curl auth from appearing in logs -or-
+        # TODO: use ruby http library to download instead of curl
+        # # for example: backend.execute :rake, clone:download
+        backend.execute :curl, curl_auth, '--fail', '--silent', '-o', local_filename, url
     end
+
   end
 
   def release
