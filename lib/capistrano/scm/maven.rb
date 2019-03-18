@@ -47,7 +47,14 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def release
-    backend.execute :tar, '-xzf', local_filename, '-C', release_path
+    extract_zip(local_filename, release_path)
+  end
+
+  def extract_zip(file_path, destination)
+    backend.execute :rm, '-rf', 'out'
+    backend.execute :unzip, '-q', file_path, '-d', 'out/'
+    backend.execute :bash, "-c 'shopt -s dotglob; mv out/#{fetch(:maven_artifact_name)}-#{fetch(:maven_artifact_version)}/* #{release_path}'"
+    backend.execute :rm, '-rf', 'out'
   end
 
   private
