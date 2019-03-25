@@ -30,7 +30,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
 
   def curl_auth
     if maven_user && maven_password
-      "--user '#{maven_user}:#{maven_password}'"
+      "'#{maven_user}:#{maven_password}'"
     else
       ''
     end
@@ -70,7 +70,6 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def download
-
       url = artifact_url(artifact_id)
       backend.info "Remote file name #{remote_filename(artifact_id)}"
       backend.info "Downloading artifact from #{url}"
@@ -78,9 +77,8 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
         # TODO: redact the curl auth from appearing in logs -or-
         # TODO: use ruby http library to download instead of curl
         # # for example: backend.execute :rake, clone:download
-        backend.execute :curl, curl_auth, '--fail', '--silent', '-o', local_filename, url
+        backend.execute :curl, '--user', backend.redact(curl_auth), '--fail', '--silent', '-o', local_filename, url
       end
-
   end
 
   def release
