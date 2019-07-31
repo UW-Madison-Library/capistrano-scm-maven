@@ -82,7 +82,15 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def release
-    extract_zip(local_filename, release_path)
+    case fetch('maven_artifact_ext')
+    when 'zip'
+      extract_zip(local_filename, release_path)
+    when 'tar.gz'
+      extract_tarball_gz(local_filename, release_path)
+    else
+      error = CommandError.new("Invalid maven_artifact_ext. Must be one of: zip, tar.gz")
+      raise error
+    end
   end
 
   def extract_zip(file_path, destination)
@@ -90,6 +98,10 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     backend.execute :unzip, '-q', file_path, '-d', 'out/'
     backend.execute :bash, "-c 'shopt -s dotglob; mv out/#{fetch(:maven_artifact_name)}-#{fetch(:maven_artifact_version)}/* #{release_path}'"
     backend.execute :rm, '-rf', 'out'
+  end
+
+  def extract_tarball_gz(file_path, destination)
+    backend.execute :tar, '--strip-components=1', '-xzf', file_path, '-C', release_path
   end
 
   private
