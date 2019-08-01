@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'capistrano-scm-maven'
-  s.version     = '0.3.0'
+  s.version     = '0.3.1'
   s.date        = '2018-08-16'
   s.summary     = 'A Custom SCM for Maven artifacts'
   s.description = 'Used much like the Capistrano Git SCM plugin but for when the source is contained in a binary distribution hosted by an artifact manager instead of source control'
