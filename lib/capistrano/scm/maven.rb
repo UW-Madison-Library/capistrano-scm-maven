@@ -82,13 +82,13 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
   end
 
   def release
-    case fetch('maven_artifact_ext')
+    case fetch(:maven_artifact_ext)
     when 'zip'
       extract_zip(local_filename, release_path)
     when 'tar.gz'
       extract_tarball_gz(local_filename, release_path)
     else
-      error = CommandError.new("Invalid maven_artifact_ext. Must be one of: zip, tar.gz")
+      error = RuntimeError.new("Invalid maven_artifact_ext. Must be one of: zip, tar.gz")
       raise error
     end
   end
