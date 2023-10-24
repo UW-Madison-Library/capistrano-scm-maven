@@ -172,7 +172,9 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
 
     request = Net::HTTP::Get.new(uri.path)
     request.basic_auth(maven_user, maven_password)
-    response = http.request(request)
+    http.use_ssl = uri.scheme == 'https'
+    response = http.request_head(uri.path)
+
 
     case response
     when Net::HTTPSuccess then
