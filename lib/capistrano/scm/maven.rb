@@ -1,7 +1,6 @@
 require "capistrano/scm/plugin"
 require "uri"
 require 'net/http'
-require 'net/https'
 require 'nokogiri'
 require 'open-uri'
 
@@ -168,27 +167,28 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     raise ArgumentError, 'too many HTTP redirects' if limit == 0
 
     backend.info "Checking #{uri_str} for reachability.."
-    uri = URI.parse(uri_str)
-    http = Net::HTTP.new(uri.host, uri.port)
-    backend.info "Is SSL? #{http.use_ssl = uri.scheme == 'http'}"
-    http.use_ssl = uri.scheme == 'https'
 
-    request = Net::HTTP::Get.new(uri.scheme, uri.host, uri.path)
-    request.basic_auth(maven_user, maven_password)
+    uri = URI(uri_str)
 
-    response = https.request_head(uri.path)
+    Net::HTTP.start(uri.host, uri.port,
+                    :use_ssl => uri.scheme == 'https') do |http|
+      request = Net::HTTP::Get.new uri
+
+      response = http.request_head request # Net::HTTPResponse object
 
 
-    case response
-    when Net::HTTPSuccess then
-      backend.info "#{uri_str} is reachable"
-      true
-    when Net::HTTPRedirection then
-      location = response['location']
-      warn "redirected to #{location}"
-      reachable?(location, limit - 1)
-    else
-      false
+
+      case response
+      when Net::HTTPSuccess then
+        backend.info "#{uri_str} is reachable"
+        true
+      when Net::HTTPRedirection then
+        location = response['location']
+        warn "redirected to #{location}"
+        reachable?(location, limit - 1)
+      else
+        false
+      end
     end
   end
 
