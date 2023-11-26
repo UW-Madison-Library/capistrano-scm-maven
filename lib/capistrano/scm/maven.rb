@@ -174,7 +174,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
                     :use_ssl => uri.scheme == 'https') do |http|
       request = Net::HTTP::Get.new uri
 
-      response = http.request_head request # Net::HTTPResponse object
+      response = http.request request # Net::HTTPResponse object
 
       case response
       when Net::HTTPSuccess then
