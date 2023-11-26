@@ -174,6 +174,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     Net::HTTP.start(uri.host, uri.port,
                     :use_ssl => uri.scheme == 'https') do |http|
       request = Net::HTTP::Get.new uri
+      request.basic_auth maven_user, maven_password
 
       response = http.request request # Net::HTTPResponse object
       backend.info "Response code is: #{response.code}"
