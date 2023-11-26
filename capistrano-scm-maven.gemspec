@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
   s.add_runtime_dependency 'nokogiri', '~> 1.15', '>= 1.15.5'
   s.add_runtime_dependency 'down', '~> 4.4'
-  s.add_runtime_dependency 'http', '~> 5.0', '>= 5.0.1'
+  s.add_runtime_dependency 'http', '>= 2.1.0', '< 5'
   s.add_runtime_dependency 'zip'
   s.add_runtime_dependency 'progressbar'
 end
