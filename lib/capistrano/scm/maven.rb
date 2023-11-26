@@ -1,6 +1,7 @@
 require "capistrano/scm/plugin"
 require "uri"
 require 'net/http'
+require 'net/https'
 require 'nokogiri'
 require 'open-uri'
 
@@ -169,10 +170,11 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     backend.info "Checking #{uri_str} for reachability.."
     uri = URI.parse(uri_str)
     http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == 'https'
 
     request = Net::HTTP::Get.new(uri.path)
     request.basic_auth(maven_user, maven_password)
-    http.use_ssl = uri.scheme == 'https'
+
     response = http.request_head(uri.path)
 
 
