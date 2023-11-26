@@ -176,6 +176,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
       request = Net::HTTP::Get.new uri
 
       response = http.request request # Net::HTTPResponse object
+      backend.info "Response code is: #{response.code}"
 
       case response
       when Net::HTTPSuccess then
