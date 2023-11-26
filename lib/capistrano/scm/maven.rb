@@ -169,7 +169,7 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     backend.info "Checking #{uri_str} for reachability.."
 
     uri = URI.parse(uri_str)
-    backend.info "URI Scheme is: #{uri.scheme} and URI Host is: #{uri.host} and URI Port is: #{uri.port} and URI Path is: #{uri.path}
+    backend.info "URI Scheme is: #{uri.scheme} and URI Host is: #{uri.host} and URI Port is: #{uri.port} and URI Path is: #{uri.path}"
 
     Net::HTTP.start(uri.host, uri.port,
                     :use_ssl => uri.scheme == 'https') do |http|
