@@ -168,15 +168,13 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
 
     backend.info "Checking #{uri_str} for reachability.."
 
-    uri = URI(uri_str)
+    uri = URI.parse(uri_str)
 
     Net::HTTP.start(uri.host, uri.port,
                     :use_ssl => uri.scheme == 'https') do |http|
       request = Net::HTTP::Get.new uri
 
       response = http.request_head request # Net::HTTPResponse object
-
-
 
       case response
       when Net::HTTPSuccess then
