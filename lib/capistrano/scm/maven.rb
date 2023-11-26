@@ -168,12 +168,12 @@ class Capistrano::SCM::Maven < Capistrano::SCM::Plugin
     raise ArgumentError, 'too many HTTP redirects' if limit == 0
 
     backend.info "Checking #{uri_str} for reachability.."
-    backend.info "Is SSL? #{http.use_ssl = uri.scheme == 'https'}"
     uri = URI.parse(uri_str)
-    https = Net::HTTP.new(uri.host, uri.port)
-    https.use_ssl = uri.scheme == 'https'
+    http = Net::HTTP.new(uri.host, uri.port)
+    backend.info "Is SSL? #{http.use_ssl = uri.scheme == 'http'}"
+    http.use_ssl = uri.scheme == 'https'
 
-    request = Net::HTTP::Get.new(uri.path)
+    request = Net::HTTP::Get.new(uri.scheme, uri.host, uri.path)
     request.basic_auth(maven_user, maven_password)
 
     response = https.request_head(uri.path)
